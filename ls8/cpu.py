@@ -7,7 +7,18 @@ class CPU:
 
     def __init__(self):
         """Construct a new CPU."""
-        pass
+        self.ram = [0]*256
+        self.reg=[0]*8
+        self.PC=0
+        self.MAR = 0
+        self.MDR = 0
+        self.IR=0
+
+    def ram_read(self, address):
+        return self.ram[address]
+        
+    def ram_write(self,value,address):
+        self.ram[address] = value
 
     def load(self):
         """Load a program into memory."""
@@ -47,19 +58,41 @@ class CPU:
         """
 
         print(f"TRACE: %02X | %02X %02X %02X |" % (
-            self.pc,
+            self.PC,
             #self.fl,
             #self.ie,
-            self.ram_read(self.pc),
-            self.ram_read(self.pc + 1),
-            self.ram_read(self.pc + 2)
+            self.ram_read(self.PC),
+            self.ram_read(self.PC + 1),
+            self.ram_read(self.PC + 2)
         ), end='')
 
         for i in range(8):
             print(" %02X" % self.reg[i], end='')
 
         print()
+    
 
     def run(self):
         """Run the CPU."""
-        pass
+        LDI=0b10000010
+        PRN=0b01000111
+        HLT=0b00000001
+
+        running = True
+
+        while running:
+            self.IR = self.ram_read(self.PC)
+            operand_a = self.ram_read(self.PC + 1)
+            operand_b = self.ram_read(self.PC + 2)
+
+            # LDI R0,8
+            # PRN R0
+            # HLT
+            if self.IR == LDI :
+               self.reg[operand_a] = operand_b
+               self.PC += 3
+            if self.IR == PRN :
+                print(self.reg[operand_a]) 
+                self.PC += 2
+            if self.IR == HLT:
+                running = False
